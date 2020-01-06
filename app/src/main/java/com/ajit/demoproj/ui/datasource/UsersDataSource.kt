@@ -8,6 +8,7 @@ import com.ajit.demoproj.data.api.Row
 import com.ajit.demoproj.data.repository.Repository
 import com.ajit.demoproj.ui.datasource.NetworkState
 import io.reactivex.Completable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action

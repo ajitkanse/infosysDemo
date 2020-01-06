@@ -40,6 +40,10 @@ android {
     dataBinding {
         enabled = true
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 
@@ -126,10 +130,11 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
     //mokito functional testing
     testImplementation 'org.mockito:mockito-inline:2.19.0'
 
     implementation 'commons-net:commons-net:3.6'
+
+    testImplementation "android.arch.core:core-testing:1.1.1"
 
 }

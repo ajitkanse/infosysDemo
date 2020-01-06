@@ -17,7 +17,9 @@ import com.ajit.demoproj.ui.datasource.Status
 import com.storiyoh.demoproj.repository.FakeRepository
 import com.storiyoh.demoproj.repository.FakeUsersDataSource
 import com.storiyoh.demoproj.repository.FakeUsersDataSourceFactory
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.TestObserver
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -25,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mock
+import org.mockito.Mockito
 
 @RunWith(JUnit4::class)
 class HomeFragTest {
@@ -101,6 +104,25 @@ class HomeFragTest {
             Assert.assertEquals(Status.SUCCESS,it.networkState)
         }
     }
+
+ /*   @Test
+    fun showDataFromApi() {
+
+        val rows: List<Row> = listOf(Row("","",""))
+
+        Mockito.`when`(repository.getDataFromApi()).thenReturn(Single.just(ApiResp(rows,"About Canada")))
+
+        val testObserver = TestObserver<ApiResp>()
+
+        repository.getDataFromApi().subscribe(testObserver)
+
+        testObserver.assertNoErrors()
+        testObserver.assertValue {
+
+                response -> response.title.equals("About Canada") }
+
+    }*/
+
 
     @Test
     fun `onCleared`() {

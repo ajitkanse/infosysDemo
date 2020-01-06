@@ -50,16 +50,18 @@ class HomeViewModel(
     }
 
     fun getNetworkState(): LiveData<NetworkState> = Transformations.switchMap<UsersDataSource, NetworkState>(
-        sourceFactory.usersDataSourceLiveData, { it.networkState })
+        sourceFactory.usersDataSourceLiveData
+    ) { it.networkState }
 
 
     fun getNetworkData(): LiveData<ApiResp> = Transformations.switchMap<UsersDataSource, ApiResp>(
-        sourceFactory.usersDataSourceLiveData, { it.apiRespData })
-
+        sourceFactory.usersDataSourceLiveData
+    ) { it.apiRespData }
 
 
     fun getRefreshState(): LiveData<NetworkState> = Transformations.switchMap<UsersDataSource, NetworkState>(
-        sourceFactory.usersDataSourceLiveData, { it.initialLoad })
+        sourceFactory.usersDataSourceLiveData
+    ) { it.initialLoad }
 
     override fun onCleared() {
         super.onCleared()

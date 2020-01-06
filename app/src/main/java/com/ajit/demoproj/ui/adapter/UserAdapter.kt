@@ -1,6 +1,7 @@
 package com.ahmedabdelmeged.pagingwithrxjava.kotlin.adapter
 
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -15,6 +16,7 @@ class UserAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Row,
     private var networkState: NetworkState? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        Log.e("UserAdapter"," onCreateViewHolder   $viewType")
         return when (viewType) {
             R.layout.item_user -> MyViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateViewHolder.create(parent, retryCallback)
@@ -23,7 +25,11 @@ class UserAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Row,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Log.e("UserAdapter"," onBindViewHolder   $position")
+
+
         when (getItemViewType(position)) {
+
             R.layout.item_user -> (holder as MyViewHolder).bindTo(getItem(position))
             R.layout.item_network_state -> (holder as NetworkStateViewHolder).bindTo(networkState)
         }
@@ -45,6 +51,9 @@ class UserAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Row,
         return super.getItemCount() + if (hasExtraRow()) 1 else 0
     }
 
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+    }
     fun setNetworkState(newNetworkState: NetworkState?) {
         if (currentList != null) {
             if (currentList!!.size != 0) {

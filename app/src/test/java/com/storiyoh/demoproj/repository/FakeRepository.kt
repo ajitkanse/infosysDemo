@@ -18,7 +18,6 @@ class FakeRepository {
 
         val respSing: Single<ApiResp> = Single.just(resp)
 
-        print(resp)
 
         return respSing
 
