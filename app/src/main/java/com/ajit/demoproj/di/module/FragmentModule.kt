@@ -1,7 +1,7 @@
 package com.ajit.demoproj.di.module
 
-import com.ajit.demoproj.ui.HomeViewModel
-import com.ajit.demoproj.data.repository.Repository
+import com.ajit.demoproj.viewmodel.HomeViewModel
+import com.ajit.demoproj.data.repository.PostRepository
 import com.ajit.demoproj.util.SchedulerProvider
 import dagger.Module
 import dagger.Provides
@@ -10,7 +10,7 @@ import dagger.Provides
 class FragmentModule {
 
     @Provides
-    fun provideViewModel(repository: Repository,
+    fun provideViewModel(postRepository: PostRepository,
                          schedulerProvider: SchedulerProvider
-    ) = HomeViewModel(repository, schedulerProvider)
+    ) = HomeViewModel(postRepository, schedulerProvider)
 }

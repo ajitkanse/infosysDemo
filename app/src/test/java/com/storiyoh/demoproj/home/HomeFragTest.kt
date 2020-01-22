@@ -2,53 +2,33 @@ package com.storiyoh.demoproj.home
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.ahmedabdelmeged.pagingwithrxjava.kotlin.data.datasource.UsersDataSource
-import com.ahmedabdelmeged.pagingwithrxjava.kotlin.data.datasource.UsersDataSourceFactory
-import com.ajit.demoproj.data.api.ApiResp
-import com.ajit.demoproj.data.api.Row
-import com.ajit.demoproj.data.repository.Repository
-import com.ajit.demoproj.ui.HomeViewModel
-import com.ajit.demoproj.ui.datasource.NetworkState
-import com.ajit.demoproj.ui.datasource.Status
+import com.ajit.demoproj.data.local.Post
+import com.ajit.demoproj.data.datasource.Status
 import com.storiyoh.demoproj.repository.FakeRepository
-import com.storiyoh.demoproj.repository.FakeUsersDataSource
 import com.storiyoh.demoproj.repository.FakeUsersDataSourceFactory
-import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.TestObserver
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mock
-import org.mockito.Mockito
 
 @RunWith(JUnit4::class)
 class HomeFragTest {
 
-    //Subject unser testee
-    private lateinit var homeViewModel: HomeViewModel
-
-    // fake repository to be injected into viewmodel
     private lateinit var repository: FakeRepository
 
     private val pageSize = 15
-    lateinit var list: LiveData<PagedList<Row>>
-
+    lateinit var list: LiveData<PagedList<Post>>
 
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
-    var usersDataSource: FakeUsersDataSource? = null
-
     lateinit var sourceFactory: FakeUsersDataSourceFactory
 
-    var row: Row = Row(
+    var post: Post = Post(
         title = "title ",
         description = "description ",
         imageHref = "image "
@@ -62,7 +42,7 @@ class HomeFragTest {
     @Before
     fun setupViewModel() {
         repository = FakeRepository()
-        repository.addData(row)
+        repository.addData(post)
 
         sourceFactory = FakeUsersDataSourceFactory(compositeDisposable, repository)
         val config = PagedList.Config.Builder()
@@ -70,7 +50,7 @@ class HomeFragTest {
             .setInitialLoadSizeHint(pageSize * 2)
             .setEnablePlaceholders(false)
             .build()
-        list = LivePagedListBuilder<Long, Row>(sourceFactory, config).build()
+        list = LivePagedListBuilder<Long, Post>(sourceFactory, config).build()
 
     }
 
@@ -104,25 +84,6 @@ class HomeFragTest {
             Assert.assertEquals(Status.SUCCESS,it.networkState)
         }
     }
-
- /*   @Test
-    fun showDataFromApi() {
-
-        val rows: List<Row> = listOf(Row("","",""))
-
-        Mockito.`when`(repository.getDataFromApi()).thenReturn(Single.just(ApiResp(rows,"About Canada")))
-
-        val testObserver = TestObserver<ApiResp>()
-
-        repository.getDataFromApi().subscribe(testObserver)
-
-        testObserver.assertNoErrors()
-        testObserver.assertValue {
-
-                response -> response.title.equals("About Canada") }
-
-    }*/
-
 
     @Test
     fun `onCleared`() {

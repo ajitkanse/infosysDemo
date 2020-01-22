@@ -2,10 +2,9 @@ package com.storiyoh.demoproj.repository
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.ItemKeyedDataSource
-import com.ajit.demoproj.data.api.ApiResp
-import com.ajit.demoproj.data.api.Row
-import com.ajit.demoproj.data.repository.Repository
-import com.ajit.demoproj.ui.datasource.NetworkState
+import com.ajit.demoproj.data.api.ApiPostResp
+import com.ajit.demoproj.data.local.Post
+import com.ajit.demoproj.data.datasource.NetworkState
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,13 +15,13 @@ class FakeUsersDataSource(
     private val repository: FakeRepository,
     private val compositeDisposable: CompositeDisposable
 )
-    : ItemKeyedDataSource<Long, Row>() {
+    : ItemKeyedDataSource<Long, Post>() {
 
     val networkState = MutableLiveData<NetworkState>()
 
     val initialLoad = MutableLiveData<NetworkState>()
 
-    val apiRespData = MutableLiveData<ApiResp>()
+    val apiRespData = MutableLiveData<ApiPostResp>()
 
     private var retryCompletable: Completable? = null
 
@@ -35,10 +34,10 @@ class FakeUsersDataSource(
         }
     }
 
-    override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Row>) {
+    override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Post>) {
         // update network states.
         // we also provide an initial load state to the listeners so that the UI can know when the
-        // very first list is loaded.
+        // very first postList is loaded.
         networkState.postValue(NetworkState.LOADING)
         initialLoad.postValue(NetworkState.LOADING)
 
@@ -57,7 +56,7 @@ class FakeUsersDataSource(
         }))
     }
 
-    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Row>) {
+    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Post>) {
         // set network value to loading.
         networkState.postValue(NetworkState.LOADING)
 
@@ -75,11 +74,11 @@ class FakeUsersDataSource(
         }))
     }
 
-    override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Row>) {
+    override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Post>) {
         // ignored, since we only ever append to our initial load
     }
 
-    override fun getKey(item: Row): Long {
+    override fun getKey(item: Post): Long {
         return 0
     }
 

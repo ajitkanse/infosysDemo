@@ -1,11 +1,16 @@
 package com.ajit.demoproj.di.module
 
 import android.app.Application
+import android.content.Context
+import androidx.room.Room
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.ajit.demoproj.BuildConfig
 import com.ajit.demoproj.data.api.ApiService
+import com.ajit.demoproj.data.local.PostDao
+import com.ajit.demoproj.data.local.PostDb
+import com.ajit.demoproj.util.Constants
 import com.ajit.demoproj.util.SchedulerProvider
 import dagger.Module
 import dagger.Provides
@@ -24,21 +29,10 @@ import javax.inject.Singleton
 
 
 @Module
-class AppModule {
-    @Provides
-    @Singleton
-    fun provideSchedulerProvider() = SchedulerProvider(
-        Schedulers.io(),
-        AndroidSchedulers.mainThread())
+class AppDataModule {
 
-    @Provides
-    @Singleton
-    fun provideGson(): Gson {
-        return GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .create()
-    }
 
+    //  Remote Database Module
     @Provides
     @Singleton
     fun provideOkHttpClient(application: Application): OkHttpClient {
@@ -64,11 +58,47 @@ class AppModule {
     @Singleton
     fun provideApiService(gson: Gson, okHttpClient: OkHttpClient): ApiService {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BaseUrl)
+            .baseUrl(Constants.BaseUrl)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(okHttpClient)
             .build().create(ApiService::class.java)
 
     }
+
+    @Provides
+    @Singleton
+    fun provideSchedulerProvider() = SchedulerProvider(
+        Schedulers.io(),
+        AndroidSchedulers.mainThread())
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create()
+    }
+
+
+    // Local Database Module
+
+    @Provides
+    @Singleton
+    fun providePostDb(context: Context): PostDb {
+        return Room.databaseBuilder(context, PostDb::class.java, Constants.ROOM_DB_NAME).build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePostDao(postDb:PostDb): PostDao = postDb.postDao()
+
+
+    // common
+
+    @Provides
+    @Singleton
+    fun provideContext(application: Application): Context = application
+
+
 }

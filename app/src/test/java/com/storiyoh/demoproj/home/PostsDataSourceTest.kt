@@ -3,13 +3,11 @@ package com.storiyoh.demoproj
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.paging.ItemKeyedDataSource
-import com.ahmedabdelmeged.pagingwithrxjava.kotlin.data.datasource.UsersDataSource
-import com.ajit.demoproj.data.api.ApiResp
-import com.ajit.demoproj.data.api.Row
-import com.ajit.demoproj.data.repository.Repository
-import com.ajit.demoproj.ui.datasource.NetworkState
-import com.ajit.demoproj.ui.datasource.Status
-import io.reactivex.Observable
+import com.ahmedabdelmeged.pagingwithrxjava.kotlin.data.datasource.PostsDataSource
+import com.ajit.demoproj.data.api.ApiPostResp
+import com.ajit.demoproj.data.local.Post
+import com.ajit.demoproj.data.repository.PostRepository
+import com.ajit.demoproj.data.datasource.NetworkState
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import org.junit.After
@@ -23,32 +21,30 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
-import kotlin.math.sin
-import org.mockito.BDDMockito.given
 
 
 
 @RunWith(JUnit4::class)
-class UsersDataSourceTest {
+class PostsDataSourceTest {
 
     @Rule
     @JvmField
     var instantExecutorRule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var repository : Repository
+    lateinit var postRepository : PostRepository
 
     @Mock
     lateinit var compositeDisposable: CompositeDisposable
 
-    var usersDataSource : UsersDataSource? = null
+    var postsDataSource : PostsDataSource? = null
 
     @Before
     fun setUp() {
 
         MockitoAnnotations.initMocks(this)
 
-        usersDataSource = UsersDataSource(repository, compositeDisposable)
+        postsDataSource = PostsDataSource(postRepository, compositeDisposable)
 
     }
 
@@ -56,7 +52,7 @@ class UsersDataSourceTest {
     @Test
     fun getKeyShouldReturnZero(){
 
-       val s =  usersDataSource?.getKey(Row("","",""))
+       val s =  postsDataSource?.getKey(Post("","",""))
 
         assert(s==0L)
 
@@ -67,30 +63,30 @@ class UsersDataSourceTest {
 
         val observerNetworkState = mock(Observer::class.java) as Observer<NetworkState>
         val observerInitialLoad = mock(Observer::class.java) as Observer<NetworkState>
-        val observerApiRespData = mock(Observer::class.java) as Observer<ApiResp>
+        val observerApiRespData = mock(Observer::class.java) as Observer<ApiPostResp>
 
-        usersDataSource?.networkState?.observeForever(observerNetworkState)
-        usersDataSource?.initialLoad?.observeForever(observerInitialLoad)
-        usersDataSource?.apiRespData?.observeForever(observerApiRespData)
+        postsDataSource?.networkState?.observeForever(observerNetworkState)
+        postsDataSource?.initialLoad?.observeForever(observerInitialLoad)
+        postsDataSource?.apiRespData?.observeForever(observerApiRespData)
 
         val loadInitialParams = mock(ItemKeyedDataSource.LoadInitialParams::class.java)
         val loadInitialCallback = mock(ItemKeyedDataSource.LoadInitialCallback::class.java)
 
-        val row1 = Row("desc","image","title")
+        val row1 = Post("title","description","imageHref")
 
-        val list = listOf<Row>(row1)
+        val list = listOf<Post>(row1)
 
-        val apiResp = ApiResp(list,"MyTitle")
+        val apiResp = ApiPostResp(list,"MyTitle")
 
         val single = Single.just(apiResp)
 
-        Mockito.`when`(repository.getDataFromApi()).thenReturn(
+        Mockito.`when`(postRepository.getPostDataFromApi()).thenReturn(
             single
         )
 
-        usersDataSource?.loadInitial(
+        postsDataSource?.loadInitial(
             loadInitialParams as ItemKeyedDataSource.LoadInitialParams<Long>,
-            loadInitialCallback as ItemKeyedDataSource.LoadInitialCallback<Row>
+            loadInitialCallback as ItemKeyedDataSource.LoadInitialCallback<Post>
         )
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(NetworkState.LOADING)
@@ -111,23 +107,23 @@ class UsersDataSourceTest {
 
         val observerNetworkState = mock(Observer::class.java) as Observer<NetworkState>
         val observerInitialLoad = mock(Observer::class.java) as Observer<NetworkState>
-        val observerApiRespData = mock(Observer::class.java) as Observer<ApiResp>
+        val observerApiRespData = mock(Observer::class.java) as Observer<ApiPostResp>
 
-        usersDataSource?.networkState?.observeForever(observerNetworkState)
-        usersDataSource?.initialLoad?.observeForever(observerInitialLoad)
-        usersDataSource?.apiRespData?.observeForever(observerApiRespData)
+        postsDataSource?.networkState?.observeForever(observerNetworkState)
+        postsDataSource?.initialLoad?.observeForever(observerInitialLoad)
+        postsDataSource?.apiRespData?.observeForever(observerApiRespData)
 
         val loadInitialParams = mock(ItemKeyedDataSource.LoadInitialParams::class.java)
         val loadInitialCallback = mock(ItemKeyedDataSource.LoadInitialCallback::class.java)
 
 
-        Mockito.`when`(repository.getDataFromApi()).thenReturn(
+        Mockito.`when`(postRepository.getPostDataFromApi()).thenReturn(
             Single.error(Throwable("Error"))
         )
 
-        usersDataSource?.loadInitial(
+        postsDataSource?.loadInitial(
             loadInitialParams as ItemKeyedDataSource.LoadInitialParams<Long>,
-            loadInitialCallback as ItemKeyedDataSource.LoadInitialCallback<Row>
+            loadInitialCallback as ItemKeyedDataSource.LoadInitialCallback<Post>
         )
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(NetworkState.LOADING)
@@ -136,7 +132,7 @@ class UsersDataSourceTest {
         verify(observerNetworkState, never()).onChanged(NetworkState.LOADED)
         verify(observerInitialLoad, never()).onChanged(NetworkState.LOADED)
 
-        val error = NetworkState.error("throwable.message")
+        val error = NetworkState.error("Internal Server problem")
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(error)
 
@@ -150,27 +146,28 @@ class UsersDataSourceTest {
 
         val observerNetworkState = mock(Observer::class.java) as Observer<NetworkState>
 
-        usersDataSource?.networkState?.observeForever(observerNetworkState)
+        postsDataSource?.networkState?.observeForever(observerNetworkState)
 
         val params = mock(ItemKeyedDataSource.LoadParams::class.java)
         val callback = mock(ItemKeyedDataSource.LoadCallback::class.java)
 
-        val row1 = Row("desc","image","title")
+        val row1 = Post("title","description","imageHref")
 
-        val list = listOf<Row>(row1)
 
-        val apiResp = ApiResp(list,"MyTitle")
+        val list = listOf<Post>(row1)
+
+        val apiResp = ApiPostResp(list,"MyTitle")
 
         val single = Single.just(apiResp)
 
-        Mockito.`when`(repository.getDataFromApi()).thenReturn(
+        Mockito.`when`(postRepository.getPostDataFromApi()).thenReturn(
 
             single
         )
 
-        usersDataSource?.loadAfter(
+        postsDataSource?.loadAfter(
             params as ItemKeyedDataSource.LoadParams<Long>,
-            callback as ItemKeyedDataSource.LoadCallback<Row>
+            callback as ItemKeyedDataSource.LoadCallback<Post>
         )
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(NetworkState.LOADING)
@@ -187,26 +184,26 @@ class UsersDataSourceTest {
         val observerNetworkState = mock(Observer::class.java) as Observer<NetworkState>
         val observerInitialLoad = mock(Observer::class.java) as Observer<NetworkState>
 
-        usersDataSource?.networkState?.observeForever(observerNetworkState)
-        usersDataSource?.initialLoad?.observeForever(observerInitialLoad)
+        postsDataSource?.networkState?.observeForever(observerNetworkState)
+        postsDataSource?.initialLoad?.observeForever(observerInitialLoad)
 
         val params = mock(ItemKeyedDataSource.LoadParams::class.java)
         val callback = mock(ItemKeyedDataSource.LoadCallback::class.java)
 
-        Mockito.`when`(repository.getDataFromApi()).thenReturn(
+        Mockito.`when`(postRepository.getPostDataFromApi()).thenReturn(
             Single.error(Throwable("Error"))
         )
 
-        usersDataSource?.loadAfter(
+        postsDataSource?.loadAfter(
             params as ItemKeyedDataSource.LoadParams<Long>,
-            callback as ItemKeyedDataSource.LoadCallback<Row>
+            callback as ItemKeyedDataSource.LoadCallback<Post>
         )
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(NetworkState.LOADING)
 
         verify(observerNetworkState, never()).onChanged(NetworkState.LOADED)
 
-        val error = NetworkState.error("throwable.message")
+        val error = NetworkState.error("Internal Server problem")
 
         verify(observerNetworkState, Mockito.times(1)).onChanged(error)
 
@@ -215,7 +212,7 @@ class UsersDataSourceTest {
     @Test
     fun `setRetryTest`(){
 
-        usersDataSource?.retry()
+        postsDataSource?.retry()
 
     }
 

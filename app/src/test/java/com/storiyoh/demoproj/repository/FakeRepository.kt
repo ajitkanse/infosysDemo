@@ -1,35 +1,32 @@
 package com.storiyoh.demoproj.repository
 
-import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
-import com.ajit.demoproj.data.api.ApiResp
-import com.ajit.demoproj.data.api.Row
+import com.ajit.demoproj.data.api.ApiPostResp
+import com.ajit.demoproj.data.local.Post
 import io.reactivex.Single
 import javax.inject.Singleton
 
 @Singleton
 class FakeRepository {
 
-    var list: ArrayList<Row> = ArrayList()
+    var postList: ArrayList<Post> = ArrayList()
 
-    fun getDataFromApi(): Single<ApiResp> {
+    fun getDataFromApi(): Single<ApiPostResp> {
 
-        var resp : ApiResp = ApiResp(list,"About Canada")
+        var postResp = ApiPostResp(postList,"About Canada")
 
-        val respSing: Single<ApiResp> = Single.just(resp)
+        val postRespSing: Single<ApiPostResp> = Single.just(postResp)
 
-
-        return respSing
+        return postRespSing
 
     }
 
-    fun addData(row: Row) {
+    fun addData(post: Post) {
         for (i in 1..5) {
-            list.add(
-                Row(
-                    title = "${row.title}  $i ",
-                    description = "${row.description}  $i ",
-                    imageHref = "${row.imageHref}  $i "
+            postList.add(
+                Post(
+                    title = "${post.title}  $i ",
+                    description = "${post.description}  $i ",
+                    imageHref = "${post.imageHref}  $i "
                 )
             )
         }

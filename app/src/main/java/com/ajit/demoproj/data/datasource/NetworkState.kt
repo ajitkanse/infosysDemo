@@ -1,5 +1,4 @@
-package com.ajit.demoproj.ui.datasource
-
+package com.ajit.demoproj.data.datasource
 
 
 enum class Status {
@@ -10,8 +9,9 @@ enum class Status {
 
 @Suppress("DataClassPrivateConstructor")
 data class NetworkState private constructor(
-        val status: Status,
-        val message: String? = null) {
+    val status: Status,
+    val message: String? = null
+) {
     companion object {
         val LOADED = NetworkState(Status.SUCCESS)
         val LOADING = NetworkState(Status.RUNNING)

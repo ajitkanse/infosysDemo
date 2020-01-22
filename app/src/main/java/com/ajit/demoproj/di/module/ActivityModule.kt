@@ -1,7 +1,7 @@
 package com.ajit.demoproj.di.module
 
-import com.ajit.demoproj.ui.MainActivityViewModel
-import com.ajit.demoproj.data.repository.Repository
+import com.ajit.demoproj.viewmodel.MainActivityViewModel
+import com.ajit.demoproj.data.repository.PostRepository
 import com.ajit.demoproj.util.SchedulerProvider
 import dagger.Module
 import dagger.Provides
@@ -10,8 +10,8 @@ import dagger.Provides
 class ActivityModule {
 
     @Provides
-    fun provideViewModel(repository: Repository,
-                         schedulerProvider: SchedulerProvider
-    )
-            = MainActivityViewModel(repository, schedulerProvider)
+    fun provideViewModel(
+        postRepository: PostRepository,
+        schedulerProvider: SchedulerProvider
+    ) = MainActivityViewModel(postRepository, schedulerProvider)
 }

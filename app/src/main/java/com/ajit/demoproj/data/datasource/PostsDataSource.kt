@@ -3,84 +3,83 @@ package com.ahmedabdelmeged.pagingwithrxjava.kotlin.data.datasource
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.ItemKeyedDataSource
-import com.ajit.demoproj.data.api.ApiResp
-import com.ajit.demoproj.data.api.Row
-import com.ajit.demoproj.data.repository.Repository
-import com.ajit.demoproj.ui.datasource.NetworkState
+import com.ajit.demoproj.data.api.ApiPostResp
+import com.ajit.demoproj.data.local.Post
+import com.ajit.demoproj.data.repository.PostRepository
+import com.ajit.demoproj.data.datasource.NetworkState
 import io.reactivex.Completable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Action
 import io.reactivex.schedulers.Schedulers
 
-class UsersDataSource(
-        private val repository: Repository,
-        private val compositeDisposable: CompositeDisposable)
-    : ItemKeyedDataSource<Long, Row>() {
+class PostsDataSource(
+    private val postRepository: PostRepository,
+    private val compositeDisposable: CompositeDisposable
+) : ItemKeyedDataSource<Long, Post>() {
 
     val networkState = MutableLiveData<NetworkState>()
-
     val initialLoad = MutableLiveData<NetworkState>()
-
-    val apiRespData = MutableLiveData<ApiResp>()
+    val apiRespData = MutableLiveData<ApiPostResp>()
 
     private var retryCompletable: Completable? = null
 
     fun retry() {
         if (retryCompletable != null) {
-            compositeDisposable.add(retryCompletable!!
+            compositeDisposable.add(
+                retryCompletable!!
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ }, { throwable -> /*Timber.e(throwable.message)*/ }))
+                    .subscribe({ }, { throwable -> /*Timber.e(throwable.message)*/ })
+            )
         }
     }
 
-    override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Row>) {
-        // update network states.
-        // we also provide an initial load state to the listeners so that the UI can know when the
-        // very first list is loaded.
+    override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Post>) {
+
         networkState.postValue(NetworkState.LOADING)
         initialLoad.postValue(NetworkState.LOADING)
 
-        compositeDisposable.add(repository.getDataFromApi().subscribe({ respData ->
+        compositeDisposable.add(postRepository.getPostDataFromApi().subscribe({ respData ->
             setRetry(null)
             networkState.postValue(NetworkState.LOADED)
             initialLoad.postValue(NetworkState.LOADED)
-            apiRespData.postValue(respData)
 
+            apiRespData.postValue(respData)
             callback.onResult(respData.rows)
+
+            postRepository.updateUser(respData.rows)
+
         }, { throwable ->
             setRetry(Action { loadInitial(params, callback) })
-            val error = NetworkState.error("throwable.message")
+            val error = NetworkState.error("Internal Server problem")
             networkState.postValue(error)
             initialLoad.postValue(error)
         }))
     }
 
-    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Row>) {
-        // set network value to loading.
-        networkState.postValue(NetworkState.LOADING)
+    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Post>) {
 
-        //get the users from the api after id
-        compositeDisposable.add(repository.getDataFromApi().subscribe({ users ->
-            // clear retry since last request succeeded
+        networkState.postValue(NetworkState.LOADING)
+        compositeDisposable.add(postRepository.getPostDataFromApi().subscribe({ respData ->
             setRetry(null)
             networkState.postValue(NetworkState.LOADED)
-            callback.onResult(users.rows)
+
+            callback.onResult(respData.rows)
+            postRepository.updateUser(respData.rows)
+
         }, { throwable ->
-            // keep a Completable for future retry
             setRetry(Action { loadAfter(params, callback) })
             // publish the error
-            networkState.postValue(NetworkState.error("throwable.message"))
+            networkState.postValue(NetworkState.error("Internal Server problem"))
         }))
     }
 
-    override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Row>) {
+    override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Post>) {
         // ignored, since we only ever append to our initial load
     }
 
-    override fun getKey(item: Row): Long {
+    override fun getKey(item: Post): Long {
         return 0
     }
 

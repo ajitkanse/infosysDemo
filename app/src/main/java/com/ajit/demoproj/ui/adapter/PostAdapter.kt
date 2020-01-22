@@ -7,30 +7,30 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.ajit.demoproj.R
-import com.ajit.demoproj.data.api.Row
-import com.ajit.demoproj.ui.datasource.NetworkState
+import com.ajit.demoproj.data.local.Post
+import com.ajit.demoproj.data.datasource.NetworkState
 
 
-class UserAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Row, RecyclerView.ViewHolder>(UserDiffCallback) {
+class PostAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Post, RecyclerView.ViewHolder>(UserDiffCallback) {
 
     private var networkState: NetworkState? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        Log.e("UserAdapter"," onCreateViewHolder   $viewType")
+        Log.e("PostAdapter"," onCreateViewHolder   $viewType")
         return when (viewType) {
-            R.layout.item_user -> MyViewHolder.create(parent)
+            R.layout.item_user -> PostViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateViewHolder.create(parent, retryCallback)
             else -> throw IllegalArgumentException("unknown view type")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        Log.e("UserAdapter"," onBindViewHolder   $position")
+        Log.e("PostAdapter"," onBindViewHolder   $position")
 
 
         when (getItemViewType(position)) {
 
-            R.layout.item_user -> (holder as MyViewHolder).bindTo(getItem(position))
+            R.layout.item_user -> (holder as PostViewHolder).bindTo(getItem(position))
             R.layout.item_network_state -> (holder as NetworkStateViewHolder).bindTo(networkState)
         }
     }
@@ -75,12 +75,12 @@ class UserAdapter(private val retryCallback: () -> Unit) : PagedListAdapter<Row,
     }
 
     companion object {
-        val UserDiffCallback = object : DiffUtil.ItemCallback<Row>() {
-            override fun areItemsTheSame(oldItem: Row, newItem: Row): Boolean {
+        val UserDiffCallback = object : DiffUtil.ItemCallback<Post>() {
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
                 return oldItem.title == newItem.title
             }
 
-            override fun areContentsTheSame(oldItem: Row, newItem: Row): Boolean {
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
                 return oldItem.title == newItem.title
             }
         }

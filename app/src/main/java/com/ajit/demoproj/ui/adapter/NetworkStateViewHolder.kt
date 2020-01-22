@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 import com.ajit.demoproj.R
-import com.ajit.demoproj.ui.datasource.NetworkState
-import com.ajit.demoproj.ui.datasource.Status
+import com.ajit.demoproj.data.datasource.NetworkState
+import com.ajit.demoproj.data.datasource.Status
 import kotlinx.android.synthetic.main.item_network_state.view.*
 
 
