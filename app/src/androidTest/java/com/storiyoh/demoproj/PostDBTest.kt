@@ -1,35 +1,35 @@
 package com.storiyoh.demoproj
 
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import com.ajit.demoproj.data.local.Post
 import com.ajit.demoproj.data.local.PostDao
 import com.ajit.demoproj.data.local.PostDb
-import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.lifecycle.Lifecycle
-import androidx.test.platform.app.InstrumentationRegistry
-import org.hamcrest.CoreMatchers.`is`
 import java.util.concurrent.ExecutionException
-import androidx.test.core.app.ApplicationProvider;
-import androidx.arch.core.executor.testing.CountingTaskExecutorRule
-import org.junit.Rule
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 
 @RunWith(AndroidJUnit4::class)
-class PostDBUnitTest {
-
-    @JvmField @Rule var countingTaskExecutorRule = CountingTaskExecutorRule()
+class PostDBTest {
+    @JvmField @Rule
+    var countingTaskExecutorRule = CountingTaskExecutorRule()
 
     private var postDAO: PostDao? = null
     private var db: PostDb? = null
@@ -39,7 +39,8 @@ class PostDBUnitTest {
     @Before
     fun onCreateDB() {
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync({ mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START) })
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { mLifecycleOwner.handleEvent(
+            Lifecycle.Event.ON_START) }
 
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
@@ -70,7 +71,7 @@ class PostDBUnitTest {
         postDAO!!.insertPost(Post("India", "waertghj","asdfg"))
         drain()
 
-        assertThat(pagedList.getValue()!!.size, `is`(1))
+        MatcherAssert.assertThat(pagedList.getValue()!!.size, CoreMatchers.`is`(1))
 
         val post1 = Post("Canada2","ABCd","image")
         val post2 = Post("Canada3","ABCe","image")
@@ -83,12 +84,12 @@ class PostDBUnitTest {
 
         drain()
 
-        assertThat(pagedList.getValue()!!.size, `is`(3))
+        MatcherAssert.assertThat(pagedList.getValue()!!.size, CoreMatchers.`is`(3))
 
         pagedList.getValue()!!.loadAround(2)
 
         drain()
-        assertThat(pagedList.getValue()!!.size, `is`(4))
+        MatcherAssert.assertThat(pagedList.getValue()!!.size, CoreMatchers.`is`(4))
 
     }
 
@@ -112,7 +113,7 @@ class PostDBUnitTest {
 
     private fun <T> observeForever(liveData: LiveData<T>) {
 
-       val futureTask =  UnitTestUtils.observeForever(liveData,mLifecycleOwner)
+        val futureTask =  UnitTestUtils.observeForever(liveData,mLifecycleOwner)
 
         ArchTaskExecutor.getMainThreadExecutor().execute(futureTask)
         try {
