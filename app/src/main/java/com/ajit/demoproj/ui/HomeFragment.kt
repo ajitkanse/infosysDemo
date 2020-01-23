@@ -78,6 +78,8 @@ class HomeFragment : BaseFragment() {
             postAdapter.submitList(it)
         })
 
+        setInitialLoadingState(NetworkState.LOADING)
+
     }
 
     private fun initSwipeToRefresh() {

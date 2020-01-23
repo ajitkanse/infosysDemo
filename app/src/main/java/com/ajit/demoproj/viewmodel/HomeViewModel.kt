@@ -1,6 +1,7 @@
 package com.ajit.demoproj.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
@@ -39,6 +40,7 @@ class HomeViewModel(
             .setEnablePlaceholders(false)
             .build()
         postList = LivePagedListBuilder<Long, Post>(sourceFactory, config).build()
+
 
     }
 

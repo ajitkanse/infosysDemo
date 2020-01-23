@@ -14,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 import io.reactivex.functions.Action
+import io.reactivex.rxkotlin.toSingle
 
 
 @Singleton
